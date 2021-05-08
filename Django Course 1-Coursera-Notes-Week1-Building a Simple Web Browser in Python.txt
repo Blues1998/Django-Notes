@@ -1,0 +1,52 @@
+import socket
+# Make a call
+mysock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+# Dial this number, meaning try to connect to this server, on port number 80
+mysock.connect(('data.pr4e.org', 80))
+# Try to fetch the following page,
+# if you have headers they will go after \r\n
+# Also, encode is used because string in Pyhton are unicode and we need to convert
+# that into UTF-8 using .encode() method
+cmd = 'GET http://data.pr4e.org/page1.htm HTTP/1.0\r\n\r\n'.encode()
+
+# We are the browser in this case so, we talk first before we get a response
+mysock.send(cmd)
+47
+while True:
+	# Get 512 characters in one go
+	data = mysock.recv(512)
+	# If we get no data, meaning socket was closed by the remote server
+	# So, the length of data returned will be 0
+	if len(data) < 1:
+		break
+	# Data returned is UTF-8 again, so we decode it to unicode which print() function wants
+	print(data.decode(), end='')
+
+# Response starts
+	# Headers start, metadata
+HTTP/1.1 200 OK
+Date: Sat, 08 May 2021 07:57:29 GMT
+Server: Apache/2.4.18 (Ubuntu)
+Last-Modified: Mon, 15 May 2017 11:11:47 GMT
+ETag: "80-54f8e1f004857"
+Accept-Ranges: bytes
+Content-Length: 128
+Cache-Control: max-age=0, no-cache, no-store, must-revalidate
+Pragma: no-cache
+Expires: Wed, 11 Jan 1984 05:00:00 GMT
+Connection: close
+Content-Type: text/html
+	# Headers end
+	# Content starts
+<h1>The First Page</h1>
+<p>
+If you like, you can switch to the
+<a href="http://data.pr4e.org/page2.htm">
+Second Page</a>.
+</p>
+	# Content ends
+
+# Response ends
+# Hang up the phone, meaning disconnect from the server
+mysock.close()
+
